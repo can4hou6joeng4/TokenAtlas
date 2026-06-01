@@ -1,0 +1,173 @@
+#!/usr/bin/env python3
+"""Prepend a release <item> to the Sparkle appcast.
+
+The appcast is a small RSS file hosted on GitHub Pages
+(https://can4hou6joeng4.github.io/TokenAtlas-releases/appcast.xml). The release workflow
+fetches the current copy, runs this script to add the new version's <item>,
+and republishes it to the gh-pages branch.
+
+Usage:
+  update-appcast.py \
+      --version 1.2.0 --build 42 \
+      --url https://github.com/can4hou6joeng4/TokenAtlas-releases/releases/download/v1.2.0/TokenAtlas-1.2.0.zip \
+      --enclosure-attrs 'sparkle:edSignature="..." length="12345"' \
+      --release-notes-file release_notes.html \
+      --min-system-version 14.0.0 \
+      --hardware-requirements arm64 \
+      --deltas-file deltas.json \
+      --in appcast.xml --out appcast.xml
+
+The release-notes file should contain inline HTML (e.g. `<ul><li>…</li></ul>`).
+It's embedded as CDATA inside the item's <description>, which Sparkle renders
+inline — no webview fetch, no GitHub page chrome.
+
+If --in does not exist (or is empty) a fresh appcast skeleton is created.
+Re-running for a version that's already in the appcast is a no-op.
+"""
+import argparse
+import email.utils
+import json
+import os
+import sys
+import time
+
+FEED_URL = "https://can4hou6joeng4.github.io/TokenAtlas-releases/appcast.xml"
+
+SKELETON = """<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>TokenAtlas</title>
+    <link>{feed}</link>
+    <description>Most recent updates to TokenAtlas.</description>
+    <language>en</language>
+  </channel>
+</rss>
+""".format(feed=FEED_URL)
+
+ITEM_TEMPLATE = """    <item>
+      <title>Version {version}</title>
+      <sparkle:version>{build}</sparkle:version>
+      <sparkle:shortVersionString>{version}</sparkle:shortVersionString>
+      <sparkle:minimumSystemVersion>{min_sys}</sparkle:minimumSystemVersion>
+      <sparkle:hardwareRequirements>{hardware_requirements}</sparkle:hardwareRequirements>
+      <description><![CDATA[
+{notes_html}
+]]></description>
+      <pubDate>{pub_date}</pubDate>
+      <enclosure url="{url}" {enclosure_attrs} type="application/octet-stream"/>
+{deltas_xml}\
+    </item>
+"""
+
+DELTA_ENCLOSURE_TEMPLATE = """        <enclosure url="{url}" sparkle:deltaFrom="{delta_from}" {enclosure_attrs} type="application/octet-stream"/>
+"""
+
+
+def load_deltas(path: str | None) -> list[dict[str, str]]:
+    if not path:
+        return []
+    with open(path, encoding="utf-8") as fh:
+        data = json.load(fh)
+    if not isinstance(data, list):
+        raise ValueError("deltas file must contain a JSON array")
+
+    deltas: list[dict[str, str]] = []
+    for index, entry in enumerate(data):
+        if not isinstance(entry, dict):
+            raise ValueError(f"delta entry {index} must be an object")
+        normalized: dict[str, str] = {}
+        for key in ("deltaFrom", "url", "enclosureAttrs"):
+            value = entry.get(key)
+            if not isinstance(value, str) or not value.strip():
+                raise ValueError(f"delta entry {index} is missing non-empty {key}")
+            normalized[key] = value.strip()
+        attrs = normalized["enclosureAttrs"]
+        if "sparkle:edSignature" not in attrs or "length=" not in attrs:
+            raise ValueError(f"delta entry {index} enclosureAttrs must include signature and length")
+        deltas.append(normalized)
+    return deltas
+
+
+def render_deltas(deltas: list[dict[str, str]]) -> str:
+    if not deltas:
+        return ""
+    enclosures = "".join(
+        DELTA_ENCLOSURE_TEMPLATE.format(
+            url=delta["url"],
+            delta_from=delta["deltaFrom"],
+            enclosure_attrs=delta["enclosureAttrs"],
+        )
+        for delta in deltas
+    )
+    return "      <sparkle:deltas>\n{}      </sparkle:deltas>\n".format(enclosures)
+
+
+def main() -> int:
+    p = argparse.ArgumentParser()
+    p.add_argument("--version", required=True)
+    p.add_argument("--build", required=True)
+    p.add_argument("--url", required=True)
+    p.add_argument("--enclosure-attrs", required=True,
+                   help='the `sparkle:edSignature="..." length="..."` string from sign_update')
+    p.add_argument("--release-notes-file", required=True,
+                   help="path to an HTML fragment with this release's notes; embedded in CDATA")
+    p.add_argument("--min-system-version", default="14.0.0")
+    p.add_argument("--hardware-requirements", default="arm64")
+    p.add_argument("--deltas-file",
+                   help="optional JSON array of delta enclosure metadata to embed under sparkle:deltas")
+    p.add_argument("--in", dest="infile", default="appcast.xml")
+    p.add_argument("--out", dest="outfile", default="appcast.xml")
+    args = p.parse_args()
+
+    if os.path.exists(args.infile) and os.path.getsize(args.infile) > 0:
+        with open(args.infile, encoding="utf-8") as fh:
+            xml = fh.read()
+    else:
+        xml = SKELETON
+
+    version_tag = "<sparkle:shortVersionString>{}</sparkle:shortVersionString>".format(args.version)
+    if version_tag in xml:
+        print("appcast already contains version {} — leaving it unchanged".format(args.version))
+        with open(args.outfile, "w", encoding="utf-8") as fh:
+            fh.write(xml)
+        return 0
+
+    with open(args.release_notes_file, encoding="utf-8") as fh:
+        notes_html = fh.read().strip()
+    if "]]>" in notes_html:
+        print("error: release notes contain ']]>' which would break CDATA", file=sys.stderr)
+        return 1
+    try:
+        deltas = load_deltas(args.deltas_file)
+    except (OSError, ValueError, json.JSONDecodeError) as error:
+        print("error: invalid deltas file: {}".format(error), file=sys.stderr)
+        return 1
+
+    item = ITEM_TEMPLATE.format(
+        version=args.version,
+        build=args.build,
+        min_sys=args.min_system_version,
+        hardware_requirements=args.hardware_requirements,
+        notes_html=notes_html,
+        pub_date=email.utils.formatdate(time.time(), localtime=False, usegmt=True),
+        url=args.url,
+        enclosure_attrs=args.enclosure_attrs.strip(),
+        deltas_xml=render_deltas(deltas),
+    )
+
+    if "<item>" in xml:
+        xml = xml.replace("    <item>", item + "    <item>", 1)
+    elif "</channel>" in xml:
+        xml = xml.replace("  </channel>", item + "  </channel>", 1)
+    else:
+        print("error: malformed appcast — no <item> or </channel> found", file=sys.stderr)
+        return 1
+
+    with open(args.outfile, "w", encoding="utf-8") as fh:
+        fh.write(xml)
+    print("added Version {} (build {}) to {}".format(args.version, args.build, args.outfile))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

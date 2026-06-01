@@ -1,0 +1,229 @@
+import SwiftUI
+
+/// Wide Usage page for the main window. The menu-bar panel still uses
+/// `UsageView`; this view owns the larger-window layout and scene persistence.
+struct MainUsageView: View {
+    @Environment(AppEnvironment.self) private var env
+
+    @SceneStorage("mainWindow.usage.period") private var periodRaw: String = StatsPeriod.today.rawValue
+    @SceneStorage("mainWindow.usage.chartStyle") private var chartStyleRaw: String = MainUsageView.ChartStyleStorage.line.rawValue
+    @SceneStorage("mainWindow.usage.scaleMode") private var scaleModeRaw: String = MainUsageView.ScaleModeStorage.linear.rawValue
+    @SceneStorage("mainWindow.usage.stackByType") private var stackByTypeRaw: Bool = false
+
+    @State private var vm = UsageViewModel()
+
+    var body: some View {
+        @Bindable var bvm = vm
+        let provider = env.preferences.selectedProvider
+        let data = vm.displayedDerivedData(provider: provider, lastRefreshedAt: env.store.lastRefreshedAt)
+        let summary = data.summary
+        let series = data.series
+        let includeCache = env.preferences.includeCacheInTokens
+        let costMode = env.preferences.costEstimationMode
+        let cacheHitRate = data.cacheHitRate
+
+        AppScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+                header(provider: provider)
+                controls(period: $bvm.period)
+                UsageSummaryCards(
+                    summary: summary,
+                    includeCacheInTokens: includeCache,
+                    costEstimationMode: costMode,
+                    cacheHitRate: cacheHitRate
+                )
+                UsageTrendPanel(
+                    series: series,
+                    seriesID: data.key.chartSeriesID,
+                    rangeID: vm.period.rawValue,
+                    chartStyle: $bvm.chartStyle,
+                    scaleMode: $bvm.scaleMode,
+                    stackByType: $bvm.stackByType,
+                    displayName: modelDisplayName
+                )
+                lowerPanels(
+                    summary: summary,
+                    series: series,
+                    seriesID: data.key.chartSeriesID,
+                    includeCache: includeCache,
+                    costMode: costMode,
+                    cacheHitRate: cacheHitRate
+                )
+            }
+            .padding(.horizontal, 20)
+            .padding(.top, 52)
+            .padding(.bottom, 22)
+            .frame(maxWidth: 980, alignment: .leading)
+            .frame(maxWidth: .infinity)
+        }
+        .onAppear {
+            syncFromSceneStorage()
+            refreshDerivedData()
+        }
+        .onChange(of: vm.period) { _, new in periodRaw = new.rawValue }
+        .onChange(of: vm.chartStyle) { _, new in chartStyleRaw = ChartStyleStorage(new).rawValue }
+        .onChange(of: vm.scaleMode) { _, new in scaleModeRaw = ScaleModeStorage(new).rawValue }
+        .onChange(of: vm.stackByType) { _, new in stackByTypeRaw = new }
+        .onChange(of: usageDataKey) { _, _ in refreshDerivedData() }
+    }
+
+    private func header(provider: ProviderKind) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text("USAGE")
+                .font(.sora(11, weight: .semibold))
+                .tracking(1.2)
+                .foregroundStyle(Color.stxMuted)
+            Text("Token usage")
+                .font(.sora(24, weight: .semibold))
+                .lineLimit(1)
+            Text(L10n.format("usage.subtitle.provider_mix",
+                             defaultValue: "Cost, cache, and model mix for %@.",
+                             provider.displayName))
+                .font(.sora(12))
+                .foregroundStyle(Color.stxMuted)
+                .lineLimit(1)
+        }
+    }
+
+    private func controls(period: Binding<StatsPeriod>) -> some View {
+        HStack(alignment: .center, spacing: 12) {
+            Spacer(minLength: 0)
+            UsagePeriodChips(period: period)
+        }
+        .frame(maxWidth: .infinity)
+    }
+
+    @ViewBuilder
+    private func lowerPanels(
+        summary: UsageSummary,
+        series: TrendSeries,
+        seriesID: String,
+        includeCache: Bool,
+        costMode: CostEstimationMode,
+        cacheHitRate: Double?
+    ) -> some View {
+        MainWindowLowerPanelsLayout(
+            widthPolicy: .trailingFixed(width: 300, leadingMinimumWidth: 560),
+            spacing: 12
+        ) {
+            UsageModelBreakdown(
+                models: summary.models,
+                series: series,
+                seriesID: seriesID,
+                includeCacheInTokens: includeCache,
+                costEstimationMode: costMode,
+                displayName: modelDisplayName
+            )
+            UsageTokenCompositionPanel(
+                usage: summary.totalUsage,
+                includeCacheInTokens: includeCache,
+                cacheHitRate: cacheHitRate
+            )
+        }
+    }
+
+    private var usageDataKey: UsageDerivedData.Key {
+        UsageDerivedData.Key(
+            period: vm.period,
+            provider: env.preferences.selectedProvider,
+            lastRefreshedAt: env.store.lastRefreshedAt
+        )
+    }
+
+    private func syncFromSceneStorage() {
+        vm.period = StatsPeriod(rawValue: periodRaw) ?? .today
+        vm.chartStyle = ChartStyleStorage(rawValue: chartStyleRaw)?.chartStyle ?? .line
+        vm.scaleMode = ScaleModeStorage(rawValue: scaleModeRaw)?.scaleMode ?? .linear
+        vm.stackByType = stackByTypeRaw
+    }
+
+    private func refreshDerivedData() {
+        vm.refreshDerivedData(
+            from: env.store,
+            provider: env.preferences.selectedProvider,
+            lastRefreshedAt: env.store.lastRefreshedAt
+        )
+    }
+
+    private func modelDisplayName(_ id: String) -> String {
+        env.store.displayName(forModel: id, provider: env.preferences.selectedProvider)
+    }
+
+}
+
+private struct UsagePeriodChips: View {
+    @Binding var period: StatsPeriod
+
+    private static let values: [StatsPeriod] = [.today, .last7Days, .last30Days, .allTime]
+
+    var body: some View {
+        PillSegmentedBar(
+            Self.values,
+            selection: $period,
+            help: { $0.displayName }
+        ) { value, _ in
+            Text(label(for: value))
+        }
+    }
+
+    private func label(for period: StatsPeriod) -> String {
+        switch period {
+        case .today: L10n.string("usage.period_chip.today", defaultValue: "Today")
+        case .last7Days: "7d"
+        case .last30Days: "30d"
+        case .allTime: L10n.string("usage.period_chip.all", defaultValue: "All")
+        }
+    }
+}
+
+private extension MainUsageView {
+    enum ChartStyleStorage: String {
+        case line, bar
+
+        init(_ chartStyle: TrendChartStyle) {
+            self = chartStyle == .line ? .line : .bar
+        }
+
+        var chartStyle: TrendChartStyle {
+            switch self {
+            case .line: .line
+            case .bar: .bar
+            }
+        }
+    }
+
+    enum ScaleModeStorage: String {
+        case linear, log
+
+        init(_ scaleMode: TrendScaleMode) {
+            self = scaleMode == .linear ? .linear : .log
+        }
+
+        var scaleMode: TrendScaleMode {
+            switch self {
+            case .linear: .linear
+            case .log: .log
+            }
+        }
+    }
+}
+
+extension View {
+    @ViewBuilder
+    func mainUsagePanel(padding: CGFloat = 14, fillHeight: Bool = false) -> some View {
+        if fillHeight {
+            fillingMainWindowPanel(padding: padding)
+        } else {
+            mainWindowPanel(padding: padding)
+        }
+    }
+}
+
+#if DEBUG
+#Preview("Main Usage") {
+    MainUsageView()
+        .environment(AppEnvironment.preview())
+        .frame(width: 1040, height: 720)
+        .background(Color.stxBackground)
+}
+#endif

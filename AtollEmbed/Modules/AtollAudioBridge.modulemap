@@ -1,0 +1,4 @@
+module AtollAudioBridge {
+  header "../../ThirdParty/Atoll/DynamicIsland/audio/AudioBridge.h"
+  export *
+}

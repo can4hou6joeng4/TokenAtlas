@@ -1,0 +1,74 @@
+# === Xcode === #
+DerivedData/
+build/
+*.xcodeproj/xcuserdata/
+*.xcworkspace/
+*.xcworkspace/xcuserdata/
+*.pbxuser
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+*.hmap
+*.dSYM
+*.dSYM.zip
+xcuserdata/
+
+# === XcodeGen === #
+# TokenAtlas.xcodeproj is generated from project.yml via `xcodegen generate`.
+TokenAtlas.xcodeproj/
+
+# === Swift Package Manager === #
+.build/
+.swiftpm/
+Package.resolved
+
+# === macOS === #
+.DS_Store
+._*
+*.swp
+*~
+
+# === Credentials / env === #
+.env
+.env.*
+*.pem
+*.p12
+*.key
+
+# === Claude Code agent config (local, not part of the project) === #
+.claude/
+.codex/
+CLAUDE.md
+
+# === Agent skills (project-local AI tooling, not project source) === #
+.agents/
+AGENTS.md
+
+# === Trellis local workflow runtime === #
+.trellis/
+
+# === Local toolchains and backups === #
+.tools/
+*.bundle
+
+# === Python bytecode === #
+__pycache__/
+*.py[cod]
+
+# === Release artifacts === #
+dist/
+
+# === Generated Ghostty embedding resources === #
+GhosttyEmbed/Resources/*
+!GhosttyEmbed/Resources/.gitkeep
+
+# === Generated language-stat runtime resources === #
+TokenAtlas/Resources/GitTools/bin/*
+TokenAtlas/Resources/GitTools/gems/*
+TokenAtlas/Resources/GitTools/runtime/*
+TokenAtlas/Resources/GitTools/manifest.json
+!TokenAtlas/Resources/GitTools/bin/.gitkeep
+
+# === Misc === #
+*.log
+*.orig

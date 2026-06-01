@@ -1,0 +1,297 @@
+name: TokenAtlas
+options:
+  bundleIdPrefix: com.tokenatlas
+  deploymentTarget:
+    macOS: "14.0"
+  xcodeVersion: "26.0"
+  generateEmptyDirectories: true
+
+configs:
+  Debug: debug
+  Release: release
+  ReleaseSigned: release
+
+packages:
+  Sparkle:
+    url: https://github.com/sparkle-project/Sparkle
+    from: "2.9.1"
+  Defaults:
+    url: https://github.com/sindresorhus/Defaults
+    from: "9.0.2"
+  KeyboardShortcuts:
+    url: https://github.com/sindresorhus/KeyboardShortcuts
+    from: "2.2.4"
+  SwiftUIIntrospect:
+    url: https://github.com/siteline/swiftui-introspect
+    from: "1.3.0"
+  LottieUI:
+    url: https://github.com/jasudev/LottieUI.git
+    branch: main
+  Lottie:
+    url: https://github.com/airbnb/lottie-spm.git
+    branch: main
+  MacroVisionKit:
+    url: https://github.com/TheBoredTeam/MacroVisionKit
+    from: "0.1.0"
+  SkyLightWindow:
+    url: https://github.com/Lakr233/SkyLightWindow
+    branch: main
+  AtollExtensionKit:
+    url: https://github.com/Ebullioscopic/AtollExtensionKit
+    branch: main
+  SwiftCollections:
+    url: https://github.com/apple/swift-collections.git
+    from: "1.1.0"
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    ARCHS: arm64
+    MACOSX_DEPLOYMENT_TARGET: "14.0"
+    DEVELOPMENT_LANGUAGE: en
+    SWIFT_STRICT_CONCURRENCY: complete
+    MARKETING_VERSION: "1.0.0"
+    CURRENT_PROJECT_VERSION: "1"
+
+targets:
+  AtollEmbed:
+    type: framework
+    platform: macOS
+    sources:
+      - path: AtollEmbed
+      - path: ThirdParty/Atoll/DynamicIsland
+        excludes:
+          - DynamicIsland-Bridging-Header.h
+          - DynamicIslandApp.swift
+          - Info.plist
+          - DynamicIsland.entitlements
+          - audio/AudioBridge.h
+          - audio/AudioProcessor.hpp
+          - menu
+          - "Preview Content"
+          - components/Settings
+          - components/Onboarding
+          - components/TestView.swift
+          - components/Notch/NotchTerminalView.swift
+          - audio/AudioTap.swift
+          - managers/TerminalManager.swift
+          - observers/FullscreenMediaDetection.swift
+      - path: ThirdParty/Atoll/LottieAnimations
+        type: folder
+        buildPhase: resources
+    dependencies:
+      - package: Defaults
+      - package: KeyboardShortcuts
+      - package: SwiftUIIntrospect
+      - package: LottieUI
+      - package: MacroVisionKit
+      - package: SkyLightWindow
+      - package: AtollExtensionKit
+      - package: SwiftCollections
+        product: Collections
+      - framework: ThirdParty/Atoll/Frameworks/MediaRemoteAdapter.framework
+      - sdk: Accelerate.framework
+      - sdk: AppKit.framework
+      - sdk: ApplicationServices.framework
+      - sdk: AudioToolbox.framework
+      - sdk: AVFoundation.framework
+      - sdk: Carbon.framework
+      - sdk: CoreAudio.framework
+      - sdk: CoreBluetooth.framework
+      - sdk: CoreImage.framework
+      - sdk: CoreLocation.framework
+      - sdk: CoreMediaIO.framework
+      - sdk: CoreServices.framework
+      - sdk: EventKit.framework
+      - sdk: IOBluetooth.framework
+      - sdk: IOKit.framework
+      - sdk: MusicKit.framework
+      - sdk: Network.framework
+      - sdk: PDFKit.framework
+      - sdk: QuickLook.framework
+      - sdk: QuickLookThumbnailing.framework
+      - sdk: QuickLookUI.framework
+      - sdk: QuartzCore.framework
+      - sdk: UniformTypeIdentifiers.framework
+      - sdk: Vision.framework
+      - sdk: WebKit.framework
+      - sdk: libc++.tbd
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.tokenatlas.AtollEmbed
+        PRODUCT_NAME: AtollEmbed
+        PRODUCT_MODULE_NAME: AtollEmbed
+        GENERATE_INFOPLIST_FILE: YES
+        SWIFT_VERSION: "5.0"
+        SWIFT_STRICT_CONCURRENCY: minimal
+        SWIFT_SUPPRESS_WARNINGS: YES
+        HEADER_SEARCH_PATHS: "$(inherited) ThirdParty/Atoll/DynamicIsland"
+        OTHER_SWIFT_FLAGS: "$(inherited) -Xcc -fmodule-map-file=$(SRCROOT)/AtollEmbed/Modules/AtollAudioBridge.modulemap"
+        CLANG_CXX_LANGUAGE_STANDARD: gnu++20
+        LD_RUNPATH_SEARCH_PATHS: "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks @loader_path/../Frameworks"
+      configs:
+        ReleaseSigned:
+          CODE_SIGN_STYLE: Manual
+          CODE_SIGN_IDENTITY: "$(SIGN_IDENTITY)"
+          DEVELOPMENT_TEAM: "$(APPLE_TEAM_ID)"
+          ENABLE_HARDENED_RUNTIME: YES
+          OTHER_CODE_SIGN_FLAGS: "--timestamp"
+
+  TokenAtlas:
+    type: application
+    platform: macOS
+    sources:
+      - path: TokenAtlas
+        excludes:
+          - Resources/GitTools
+      - path: TokenAtlas/Resources/GitTools
+        type: folder
+        buildPhase: resources
+    dependencies:
+      - package: Sparkle
+      - target: AtollEmbed
+      - package: Lottie
+      - package: SwiftCollections
+        product: Collections
+      - framework: ThirdParty/Atoll/Frameworks/MediaRemoteAdapter.framework
+        embed: true
+        codeSign: true
+      - sdk: ApplicationServices.framework
+      - sdk: Accelerate.framework
+      - sdk: Metal.framework
+      - sdk: ScreenCaptureKit.framework
+      - sdk: Vision.framework
+      - sdk: IOKit.framework
+      - sdk: SystemConfiguration.framework
+      - sdk: CoreWLAN.framework
+      - sdk: WebKit.framework
+      - sdk: libc++.tbd
+      - sdk: libsqlite3.tbd
+    postBuildScripts:
+      - name: Copy Atoll MediaRemote Runtime Resources
+        inputFiles:
+          - "$(SRCROOT)/ThirdParty/Atoll/mediaremote-adapter/mediaremote-adapter.pl"
+          - "$(SRCROOT)/ThirdParty/Atoll/Contents/Helpers/NowPlayingTestClient"
+        outputFiles:
+          - "$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/mediaremote-adapter.pl"
+          - "$(TARGET_BUILD_DIR)/$(CONTENTS_FOLDER_PATH)/Helpers/NowPlayingTestClient"
+        script: |
+          set -euo pipefail
+
+          RESOURCES_DIR="${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}"
+          HELPERS_DIR="${TARGET_BUILD_DIR}/${CONTENTS_FOLDER_PATH}/Helpers"
+
+          /bin/mkdir -p "$RESOURCES_DIR" "$HELPERS_DIR"
+          /usr/bin/install -m 755 \
+            "${SRCROOT}/ThirdParty/Atoll/mediaremote-adapter/mediaremote-adapter.pl" \
+            "${RESOURCES_DIR}/mediaremote-adapter.pl"
+          /usr/bin/install -m 755 \
+            "${SRCROOT}/ThirdParty/Atoll/Contents/Helpers/NowPlayingTestClient" \
+            "${HELPERS_DIR}/NowPlayingTestClient"
+
+          if [ "${CODE_SIGNING_ALLOWED:-NO}" != "NO" ] \
+            && [ -n "${EXPANDED_CODE_SIGN_IDENTITY:-}" ] \
+            && [ "${EXPANDED_CODE_SIGN_IDENTITY}" != "-" ]; then
+            CODESIGN_OPTIONS=""
+            if [ "${ENABLE_HARDENED_RUNTIME:-NO}" = "YES" ]; then
+              CODESIGN_OPTIONS="--options runtime"
+            fi
+
+            CODESIGN_TIMESTAMP=""
+            case " ${OTHER_CODE_SIGN_FLAGS:-} " in
+              *" --timestamp "*) CODESIGN_TIMESTAMP="--timestamp" ;;
+            esac
+
+          /usr/bin/codesign --force $CODESIGN_OPTIONS $CODESIGN_TIMESTAMP \
+            --sign "${EXPANDED_CODE_SIGN_IDENTITY}" \
+            "${HELPERS_DIR}/NowPlayingTestClient"
+          fi
+      - name: Copy CppJieba Dictionaries
+        inputFiles:
+          - "$(SRCROOT)/ThirdParty/CppJieba/dict/jieba.dict.utf8"
+          - "$(SRCROOT)/ThirdParty/CppJieba/dict/hmm_model.utf8"
+          - "$(SRCROOT)/ThirdParty/CppJieba/dict/user.dict.utf8"
+          - "$(SRCROOT)/ThirdParty/CppJieba/dict/idf.utf8"
+          - "$(SRCROOT)/ThirdParty/CppJieba/dict/stop_words.utf8"
+        outputFiles:
+          - "$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/CppJieba/jieba.dict.utf8"
+          - "$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/CppJieba/hmm_model.utf8"
+          - "$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/CppJieba/user.dict.utf8"
+          - "$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/CppJieba/idf.utf8"
+          - "$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/CppJieba/stop_words.utf8"
+        script: |
+          set -euo pipefail
+
+          JIEBA_RESOURCES_DIR="${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/CppJieba"
+          /bin/mkdir -p "$JIEBA_RESOURCES_DIR"
+          /usr/bin/install -m 644 "${SRCROOT}/ThirdParty/CppJieba/dict/jieba.dict.utf8" "$JIEBA_RESOURCES_DIR/jieba.dict.utf8"
+          /usr/bin/install -m 644 "${SRCROOT}/ThirdParty/CppJieba/dict/hmm_model.utf8" "$JIEBA_RESOURCES_DIR/hmm_model.utf8"
+          /usr/bin/install -m 644 "${SRCROOT}/ThirdParty/CppJieba/dict/user.dict.utf8" "$JIEBA_RESOURCES_DIR/user.dict.utf8"
+          /usr/bin/install -m 644 "${SRCROOT}/ThirdParty/CppJieba/dict/idf.utf8" "$JIEBA_RESOURCES_DIR/idf.utf8"
+          /usr/bin/install -m 644 "${SRCROOT}/ThirdParty/CppJieba/dict/stop_words.utf8" "$JIEBA_RESOURCES_DIR/stop_words.utf8"
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.tokenatlas.TokenAtlas
+        PRODUCT_NAME: TokenAtlas
+        PRODUCT_MODULE_NAME: TokenAtlas
+        INFOPLIST_FILE: TokenAtlas/App/Info.plist
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        COMBINE_HIDPI_IMAGES: YES
+        GENERATE_INFOPLIST_FILE: NO
+        LD_RUNPATH_SEARCH_PATHS: "$(inherited) @executable_path/../Frameworks"
+        SWIFT_OBJC_BRIDGING_HEADER: TokenAtlas/Bridging/TokenAtlas-Bridging-Header.h
+        HEADER_SEARCH_PATHS: "$(inherited) ThirdParty/CppJieba/include ThirdParty/CppJieba/deps/limonp/include"
+        CLANG_CXX_LANGUAGE_STANDARD: gnu++17
+        CLANG_CXX_LIBRARY: libc++
+      configs:
+        Debug:
+          CODE_SIGN_ENTITLEMENTS: TokenAtlas/App/TokenAtlas.entitlements
+          ENABLE_HARDENED_RUNTIME: NO
+          CODE_SIGN_IDENTITY: "-"
+          CODE_SIGN_STYLE: Automatic
+        Release:
+          CODE_SIGN_ENTITLEMENTS: TokenAtlas/App/TokenAtlas.entitlements
+          ENABLE_HARDENED_RUNTIME: NO
+          CODE_SIGN_IDENTITY: "-"
+          CODE_SIGN_STYLE: Automatic
+        ReleaseSigned:
+          CODE_SIGN_ENTITLEMENTS: TokenAtlas/App/TokenAtlas.entitlements
+          ENABLE_HARDENED_RUNTIME: YES
+          CODE_SIGN_IDENTITY: "$(SIGN_IDENTITY)"
+          CODE_SIGN_STYLE: Manual
+          DEVELOPMENT_TEAM: "$(APPLE_TEAM_ID)"
+          OTHER_CODE_SIGN_FLAGS: "--timestamp"
+          PROVISIONING_PROFILE: "$(TOKENATLAS_PROVISIONING_PROFILE)"
+          PROVISIONING_PROFILE_SPECIFIER: "$(TOKENATLAS_PROVISIONING_PROFILE_SPECIFIER)"
+
+  TokenAtlasTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - path: TokenAtlasTests
+    dependencies:
+      - target: TokenAtlas
+      - target: AtollEmbed
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.tokenatlas.TokenAtlasTests
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/TokenAtlas.app/Contents/MacOS/TokenAtlas"
+        BUNDLE_LOADER: "$(TEST_HOST)"
+
+schemes:
+  TokenAtlas:
+    build:
+      targets:
+        TokenAtlas: all
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets:
+        - TokenAtlasTests
+    profile:
+      config: Release
+    analyze:
+      config: Debug
+    archive:
+      config: Release
