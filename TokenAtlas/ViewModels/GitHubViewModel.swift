@@ -52,9 +52,19 @@ final class GitHubViewModel {
     private(set) var totalContributions: Int = 0
     private(set) var reloadToken: UInt64 = 0
 
-    private let client = GitHubClient()
-    private let cache = GitHubCalendarCache()
-    private let creds = GitHubCredentialsStore.shared
+    @ObservationIgnored private let client: any GitHubCalendarFetching
+    @ObservationIgnored private let cache: GitHubCalendarCache
+    @ObservationIgnored private let creds: any GitHubCredentialStoring
+
+    init(
+        client: any GitHubCalendarFetching = GitHubClient(),
+        cache: GitHubCalendarCache = GitHubCalendarCache(),
+        creds: any GitHubCredentialStoring = GitHubCredentialsStore.shared
+    ) {
+        self.client = client
+        self.cache = cache
+        self.creds = creds
+    }
 
     func bumpReload() { reloadToken &+= 1 }
 
@@ -102,7 +112,7 @@ final class GitHubViewModel {
     private func performFetch(token: String, interval: DateInterval) async {
         if cells.isEmpty { status = .connecting }
         do {
-            let snapshot = try await client.fetchCalendar(token: token, from: interval.start, to: interval.end)
+            let snapshot = try await client.fetchCalendar(token: token, from: interval.start, to: interval.end, now: .now)
             cells = snapshot.cells
             totalContributions = snapshot.totalContributions
             status = .connected(login: snapshot.login, syncedAt: snapshot.fetchedAt, isStale: false)
@@ -141,14 +151,16 @@ final class GitHubViewModel {
         status = .connecting
         let interval = currentInterval()
         do {
-            let snapshot = try await client.fetchCalendar(token: trimmed, from: interval.start, to: interval.end)
+            let snapshot = try await client.fetchCalendar(token: trimmed, from: interval.start, to: interval.end, now: .now)
             cells = snapshot.cells
             totalContributions = snapshot.totalContributions
             status = .connected(login: snapshot.login, syncedAt: snapshot.fetchedAt, isStale: false)
             try? cache.write(snapshot)
             return snapshot.login
         } catch {
-            creds.deleteToken()
+            if case GitHubClient.ClientError.unauthorized = error {
+                creds.deleteToken()
+            }
             status = .disconnected
             throw error
         }

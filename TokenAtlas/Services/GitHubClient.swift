@@ -33,6 +33,10 @@ struct GitHubContributionsResponse: Sendable, Decodable {
     }
 }
 
+protocol GitHubCalendarFetching: Sendable {
+    func fetchCalendar(token: String, from: Date, to: Date, now: Date) async throws -> GitHubClient.CalendarSnapshot
+}
+
 /// Stateless GitHub GraphQL client. Holds no credentials in memory — callers
 /// pass the PAT per call, so a token change doesn't require recreating the
 /// client.
@@ -40,7 +44,7 @@ struct GitHubContributionsResponse: Sendable, Decodable {
 /// Returns a `CalendarSnapshot` of per-local-day contribution counts already
 /// shaped as `HeatmapCell`s so the dashboard can join against the local
 /// heatmap on `Date` keys without an intermediate type.
-struct GitHubClient: Sendable {
+struct GitHubClient: GitHubCalendarFetching {
     enum ClientError: Error, Sendable, CustomStringConvertible {
         case unauthorized
         case rateLimited(retryAfter: Date?)
@@ -69,6 +73,10 @@ struct GitHubClient: Sendable {
         let totalContributions: Int
         let cells: [HeatmapCell]
         let fetchedAt: Date
+    }
+
+    func fetchCalendar(token: String, from: Date, to: Date) async throws -> CalendarSnapshot {
+        try await fetchCalendar(token: token, from: from, to: to, now: .now)
     }
 
     private static let endpoint = URL(string: "https://api.github.com/graphql")!

@@ -1,11 +1,17 @@
 import Foundation
 import Security
 
+protocol GitHubCredentialStoring: Sendable {
+    func readToken() -> String?
+    func saveToken(_ token: String) throws
+    func deleteToken()
+}
+
 /// Stores the user's GitHub personal access token in the macOS Keychain.
 /// V1 supports a single account — `account` is a constant. The struct itself
 /// is `Sendable` because every method goes through the Keychain rather than
 /// holding the token in memory; callers fetch lazily right before a request.
-struct GitHubCredentialsStore: Sendable {
+struct GitHubCredentialsStore: GitHubCredentialStoring {
     static let shared = GitHubCredentialsStore()
 
     private let service = "com.tokenatlas.github"
