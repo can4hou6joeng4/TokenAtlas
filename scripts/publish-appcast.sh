@@ -28,8 +28,8 @@ BUILD="${2:?usage: publish-appcast.sh <version> <build> <tag>}"
 TAG="${3:?usage: publish-appcast.sh <version> <build> <tag>}"
 : "${SPARKLE_PRIVATE_ED_KEY:?SPARKLE_PRIVATE_ED_KEY is not set}"
 
-REPO="can4hou6joeng4/TokenAtlas-releases"
-FEED_URL="https://can4hou6joeng4.github.io/TokenAtlas-releases/appcast.xml"
+REPO="can4hou6joeng4/TokenAtlas"
+FEED_URL="https://can4hou6joeng4.github.io/TokenAtlas/appcast.xml"
 SPARKLE_TOOLS_VERSION="2.9.1"   # the version of Sparkle CLI tools to download
 SPARKLE_MAX_DELTAS="${SPARKLE_MAX_DELTAS:-3}"
 SPARKLE_DELTA_FORMAT_VERSION="${SPARKLE_DELTA_FORMAT_VERSION:-4}"

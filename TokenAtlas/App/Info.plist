@@ -70,7 +70,7 @@
 	  below after running `generate_keys` — see README.md ▸ Release and Auto-update.
 	-->
 	<key>SUFeedURL</key>
-	<string>https://can4hou6joeng4.github.io/TokenAtlas-releases/appcast.xml</string>
+	<string>https://can4hou6joeng4.github.io/TokenAtlas/appcast.xml</string>
 	<key>SUPublicEDKey</key>
 	<string>q08NR2AvmmN/WuX7o7jQmYMsaL/5bPmiX/xlo3flCZY=</string>
 	<key>SUEnableAutomaticChecks</key>

@@ -53,15 +53,14 @@ Additional screenshots and GIF demos live in [`docs/assets/screens`](docs/assets
 
 ## Install
 
-Packaged builds are published through the public release mirror when maintainers
-cut a release tag:
+Packaged builds are published through this repository when maintainers cut a
+release tag:
 
-- [GitHub Releases](https://github.com/can4hou6joeng4/TokenAtlas-releases/releases)
-- [Sparkle appcast](https://can4hou6joeng4.github.io/TokenAtlas-releases/appcast.xml)
+- [GitHub Releases](https://github.com/can4hou6joeng4/TokenAtlas/releases)
+- [Sparkle appcast](https://can4hou6joeng4.github.io/TokenAtlas/appcast.xml)
 
-The source repository and the release mirror are intentionally separate: source
-changes, tags, and automation live here; downloadable app archives and the
-Sparkle feed are mirrored to `TokenAtlas-releases` for public distribution.
+Source, release tags, downloadable app archives, and the Sparkle feed now live
+in the same public repository.
 
 Release packaging supports both signed/notarized builds and unsigned fallback builds. If you use an unsigned build, macOS Gatekeeper may require opening it with right-click, then **Open**.
 
@@ -120,8 +119,8 @@ git push origin v1.2.0
 ```
 
 The release workflow builds the app, creates release notes from source commits,
-publishes archives to both this repository and `TokenAtlas-releases`, and updates
-the public Sparkle appcast when the Sparkle signing key secret is configured.
+publishes archives to this repository's GitHub Releases, and updates the public
+Sparkle appcast when the Sparkle signing key secret is configured.
 The required GitHub Actions secrets and notarization inputs are documented in
 [`.github/workflows/release.yml`](.github/workflows/release.yml).
 
