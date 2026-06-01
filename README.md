@@ -57,12 +57,16 @@ Packaged builds are published through this repository when maintainers cut a
 release tag:
 
 - [GitHub Releases](https://github.com/can4hou6joeng4/TokenAtlas/releases)
+- [Download and update page](https://can4hou6joeng4.github.io/TokenAtlas/)
 - [Sparkle appcast](https://can4hou6joeng4.github.io/TokenAtlas/appcast.xml)
 
 Source, release tags, downloadable app archives, and the Sparkle feed now live
 in the same public repository.
 
 Release packaging supports both signed/notarized builds and unsigned fallback builds. If you use an unsigned build, macOS Gatekeeper may require opening it with right-click, then **Open**.
+
+See [Installation and Releases](docs/installation.md) for current release
+status, update-feed details, and maintainer release steps.
 
 ## Privacy
 

@@ -304,6 +304,9 @@ while IFS=$'\t' read -r OLD_BUILD OLD_DISPLAY OLD_URL; do
 done < "$PREVIOUS_RELEASES"
 
 mkdir -p _site
+if [[ -d docs/pages ]]; then
+    cp -R docs/pages/. _site/
+fi
 NOTES_FILE="${RELEASE_NOTES_FILE:-release_notes.html}"
 [[ -f "$NOTES_FILE" ]] || { echo "error: release notes file '$NOTES_FILE' not found" >&2; exit 1; }
 

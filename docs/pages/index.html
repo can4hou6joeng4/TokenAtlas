@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TokenAtlas Updates</title>
+  <meta name="description" content="Download TokenAtlas and inspect the Sparkle update feed.">
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #f6f4ef;
+      --panel: #ffffff;
+      --text: #242424;
+      --muted: #6f6b65;
+      --line: #dfdbd3;
+      --accent: #e85d2a;
+      --accent-dark: #b8421f;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #151515;
+        --panel: #202020;
+        --text: #f2eee7;
+        --muted: #b8b0a5;
+        --line: #39342f;
+        --accent: #ff7a3d;
+        --accent-dark: #ff9a66;
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font: 16px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    main {
+      width: min(960px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 56px 0;
+    }
+
+    header {
+      display: grid;
+      grid-template-columns: 88px 1fr;
+      gap: 24px;
+      align-items: center;
+      padding-bottom: 36px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    img {
+      width: 88px;
+      height: 88px;
+      border-radius: 22px;
+      box-shadow: 0 16px 40px rgb(0 0 0 / 14%);
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: clamp(32px, 6vw, 56px);
+      line-height: 1;
+      letter-spacing: 0;
+    }
+
+    p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 28px;
+    }
+
+    .card {
+      min-height: 168px;
+      padding: 22px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    .label {
+      display: block;
+      margin-bottom: 10px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    h2 {
+      margin: 0 0 8px;
+      font-size: 20px;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+
+    a {
+      color: var(--accent-dark);
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .button {
+      display: inline-flex;
+      min-height: 44px;
+      align-items: center;
+      padding: 0 18px;
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 800;
+    }
+
+    .button.secondary {
+      background: transparent;
+      color: var(--accent-dark);
+    }
+
+    footer {
+      margin-top: 36px;
+      padding-top: 20px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    @media (max-width: 720px) {
+      header {
+        grid-template-columns: 1fr;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <img src="https://raw.githubusercontent.com/can4hou6joeng4/TokenAtlas/main/docs/assets/token-atlas-icon.png" alt="TokenAtlas app icon">
+      <div>
+        <h1>TokenAtlas</h1>
+        <p>A local-first macOS app for mapping AI coding usage, sessions, costs, and repository activity.</p>
+        <div class="actions">
+          <a class="button" href="https://github.com/can4hou6joeng4/TokenAtlas/releases">Download Releases</a>
+          <a class="button secondary" href="appcast.xml">Sparkle Appcast</a>
+          <a class="button secondary" href="https://github.com/can4hou6joeng4/TokenAtlas">Source</a>
+        </div>
+      </div>
+    </header>
+
+    <section class="grid" aria-label="Release channels">
+      <article class="card">
+        <span class="label">Downloads</span>
+        <h2>GitHub Releases</h2>
+        <p>Packaged builds are published from signed tags in the main repository.</p>
+      </article>
+      <article class="card">
+        <span class="label">Updates</span>
+        <h2>Sparkle Feed</h2>
+        <p>The appcast at this site is used by TokenAtlas for automatic update checks.</p>
+      </article>
+      <article class="card">
+        <span class="label">Install Notes</span>
+        <h2>macOS Gatekeeper</h2>
+        <p>Unsigned preview builds may require right-clicking the app and choosing Open.</p>
+      </article>
+    </section>
+
+    <footer>
+      This page is deployed from the TokenAtlas repository. Release automation updates <code>appcast.xml</code> when Sparkle signing is configured.
+    </footer>
+  </main>
+</body>
+</html>
