@@ -56,14 +56,20 @@ final class AIActivityViewModel {
     private var activeReloadID: UInt64 = 0
     @ObservationIgnored
     private let focusIntervalLoader: @Sendable (DateInterval, Set<String>) async -> Result<[AppFocusInterval], ScreenTimeService.Failure>
+    @ObservationIgnored
+    private let permissionChecker: @Sendable () -> Bool
     private let calendar = Calendar.current
 
     init(
         focusIntervalLoader: @escaping @Sendable (DateInterval, Set<String>) async -> Result<[AppFocusInterval], ScreenTimeService.Failure> = { range, bundleIDs in
             ScreenTimeService().focusIntervals(in: range, bundleIDs: bundleIDs)
+        },
+        permissionChecker: @escaping @Sendable () -> Bool = {
+            ScreenTimeService.canRead()
         }
     ) {
         self.focusIntervalLoader = focusIntervalLoader
+        self.permissionChecker = permissionChecker
     }
 
     var today: Date { calendar.startOfDay(for: .now) }
@@ -180,8 +186,6 @@ final class AIActivityViewModel {
     }
 
     func refreshPermissionState() {
-        if permissionState != .ok {
-            permissionState = ScreenTimeService.canRead() ? .ok : .needsFullDiskAccess
-        }
+        permissionState = permissionChecker() ? .ok : .needsFullDiskAccess
     }
 }

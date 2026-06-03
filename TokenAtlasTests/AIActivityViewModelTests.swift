@@ -50,6 +50,36 @@ struct AIActivityViewModelTests {
         #expect(viewModel.dayActivity?.codingSurfaceSeconds == 120)
         #expect(viewModel.isLoading == false)
     }
+
+    @MainActor
+    @Test("Permission refresh rechecks even after a previous granted state")
+    func permissionRefreshRechecksAfterGrantedState() {
+        let checker = PermissionSequence(values: [true, false])
+        let viewModel = AIActivityViewModel(permissionChecker: {
+            checker.next()
+        })
+
+        viewModel.refreshPermissionState()
+        #expect(viewModel.permissionState == .ok)
+
+        viewModel.refreshPermissionState()
+        #expect(viewModel.permissionState == .needsFullDiskAccess)
+    }
+}
+
+private final class PermissionSequence: @unchecked Sendable {
+    private var values: [Bool]
+    private let lock = NSLock()
+
+    init(values: [Bool]) {
+        self.values = values
+    }
+
+    func next() -> Bool {
+        lock.withLock {
+            values.isEmpty ? false : values.removeFirst()
+        }
+    }
 }
 
 private actor OrderedFocusLoader {
