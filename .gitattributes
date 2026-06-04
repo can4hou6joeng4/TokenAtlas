@@ -1,0 +1,34 @@
+# Git attributes for TokenAtlas
+# -----------------------------------------------------------------------------
+# Normalize line endings: store text with LF in the repository, auto-detecting
+# text vs binary for anything not listed explicitly below.
+* text=auto eol=lf
+
+# --- Explicit text types (force LF; shell scripts break under CRLF) ----------
+*.swift     text eol=lf
+*.py        text eol=lf
+*.sh        text eol=lf
+*.rb        text eol=lf
+*.js        text eol=lf
+*.h         text eol=lf
+*.json      text eol=lf
+*.yml       text eol=lf
+*.yaml      text eol=lf
+*.md        text eol=lf
+*.svg       text eol=lf
+*.xcstrings text eol=lf
+
+# --- Binary assets (never diff or normalize) --------------------------------
+*.png   binary
+*.gif   binary
+*.ttf   binary
+*.otf   binary
+*.icns  binary
+
+# --- GitHub Linguist ---------------------------------------------------------
+# Exclude bundled third-party code from language statistics.
+ThirdParty/**           linguist-vendored
+
+# Generated sources should not count toward language stats and are collapsed
+# in diffs by default.
+*.generated.swift       linguist-generated
