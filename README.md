@@ -7,6 +7,25 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-blue.svg?style=for-the-badge" alt="License"></a>
 </div>
 
+<details>
+<summary><b>Table of Contents</b></summary>
+
+- [Why](#why)
+- [See It](#see-it)
+- [Features](#features)
+- [Install](#install)
+- [Privacy](#privacy)
+- [Build](#build)
+- [Release and Auto-update](#release-and-auto-update)
+- [Requirements](#requirements)
+- [Layout](#layout)
+- [Design](#design)
+- [Open Source](#open-source)
+- [Contributing](#contributing)
+- [Acknowledgements](#acknowledgements)
+
+</details>
+
 ## Why
 
 AI coding work leaves a lot of local traces: sessions, tokens, costs, repositories, usage limits, provider status, and small pieces of debugging context. Most tools expose those traces as raw logs or isolated panels.
@@ -175,3 +194,10 @@ For app behavior changes, also run:
 ```bash
 bash scripts/run-debug.sh
 ```
+
+## Acknowledgements
+
+TokenAtlas stands on the shoulders of the open-source community. Sincere thanks to
+the maintainers of the embedded projects and Swift packages catalogued under
+[Open Source](#open-source) — their work makes this app possible — and to everyone
+who reports issues, proposes improvements, or sends a pull request.
