@@ -206,7 +206,7 @@ tell application "Finder"
         set current view of container window to icon view
         set toolbar visible of container window to false
         set statusbar visible of container window to false
-        set the bounds of container window to {220, 120, 1140, 682}
+        set the bounds of container window to {160, 90, 1520, 930}
 
         set viewOptions to the icon view options of container window
         set arrangement of viewOptions to not arranged
@@ -214,8 +214,8 @@ tell application "Finder"
         set text size of viewOptions to 16
         set background picture of viewOptions to backgroundImage
 
-        set position of item "TokenAtlas.app" to {235, 255}
-        set position of item "Applications" to {665, 255}
+        set position of item "TokenAtlas.app" to {410, 490}
+        set position of item "Applications" to {950, 490}
         select item "TokenAtlas.app"
 
         close

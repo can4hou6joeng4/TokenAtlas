@@ -52,3 +52,9 @@ calls, or release workflow changes.
 - Keep shared formatting, summaries, and charts in common app layers.
 - Use `Log` for runtime logging rather than `print`.
 - Avoid adding dependencies unless the maintenance cost is clearly justified.
+
+## Questions & Discussions
+
+- Ideas, questions, and "is this a bug or expected?" → [GitHub Discussions](https://github.com/can4hou6joeng4/TokenAtlas/discussions).
+- Reproducible bugs and concrete feature requests → [Issues](https://github.com/can4hou6joeng4/TokenAtlas/issues) (please use the templates).
+- Security reports → see [SECURITY.md](SECURITY.md); do not open a public issue for vulnerabilities.

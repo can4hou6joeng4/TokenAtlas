@@ -1,0 +1,8 @@
+# TokenAtlas code owners
+#
+# These owners are requested for review automatically when someone opens a
+# pull request touching matching paths. Order matters — the last matching
+# pattern wins.
+
+# Default owner for everything in the repository.
+* @can4hou6joeng4

@@ -19,8 +19,11 @@ When a release exists:
 
 1. Open the latest GitHub Release.
 2. Download `TokenAtlas-<version>.dmg` or `TokenAtlas-<version>.zip`.
-3. Move `TokenAtlas.app` into `/Applications`.
-4. Launch TokenAtlas.
+3. If you downloaded the DMG, open it and drag `TokenAtlas.app` onto the
+   `Applications` shortcut shown in the installer window.
+4. If you downloaded the zip fallback, unzip it and move `TokenAtlas.app` into
+   `/Applications`.
+5. Launch TokenAtlas.
 
 Unsigned preview builds may trigger macOS Gatekeeper. If that happens, right
 click `TokenAtlas.app`, choose **Open**, then confirm the launch prompt.

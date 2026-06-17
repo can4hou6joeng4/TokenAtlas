@@ -6,6 +6,9 @@ Screenshot files and GIF demos used by the README live in `screens/`.
 
 Current README hero and scenario assets:
 
+- `social-preview.png` - top README hero and GitHub social preview source image.
+- `token-atlas-icon.png` - app icon used in the README heading and generated
+  social-preview composition.
 - `screens/readme-main-overview.png` - primary TokenAtlas dashboard visual.
 - `screens/readme-usage.png` - Usage scenario visual.
 - `screens/readme-sessions.png` - Sessions scenario visual.

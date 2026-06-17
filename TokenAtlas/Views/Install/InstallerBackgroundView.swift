@@ -5,37 +5,49 @@ import SwiftUI
 /// real app and Applications icons over a matching generated background.
 struct InstallerBackgroundView: View {
     private enum Layout {
-        static let size = CGSize(width: 920, height: 520)
-        static let appPosition = CGPoint(x: 235, y: 255)
-        static let applicationsPosition = CGPoint(x: 665, y: 255)
+        static let size = CGSize(width: 1360, height: 840)
+        static let appPosition = CGPoint(x: 410, y: 490)
+        static let applicationsPosition = CGPoint(x: 950, y: 490)
         static let iconSize: CGFloat = 128
-        static let appPanelSize = CGSize(width: 214, height: 214)
+        static let landingPadSize = CGSize(width: 220, height: 196)
     }
 
     var showsMockIcons = true
 
     var body: some View {
         ZStack {
-            Color(red: 0.955, green: 0.960, blue: 0.980)
+            Color(red: 0.953, green: 0.973, blue: 0.968)
 
-            RoundedRectangle(cornerRadius: 22, style: .continuous)
-                .fill(Color(red: 0.865, green: 0.875, blue: 0.905))
-                .overlay {
-                    RoundedRectangle(cornerRadius: 22, style: .continuous)
-                        .strokeBorder(.white.opacity(0.62), lineWidth: 3)
-                }
-                .shadow(color: .white.opacity(0.7), radius: 18, x: -10, y: -10)
-                .shadow(color: .black.opacity(0.07), radius: 12, x: 0, y: 6)
-                .frame(width: Layout.appPanelSize.width, height: Layout.appPanelSize.height)
+            Rectangle()
+                .fill(Color(red: 0.106, green: 0.129, blue: 0.157))
+                .frame(height: 18)
+                .frame(maxHeight: .infinity, alignment: .top)
+
+            VStack(spacing: 18) {
+                Text(verbatim: "Drag TokenAtlas to Applications")
+                    .font(.system(size: 62, weight: .medium))
+                    .foregroundStyle(Color(red: 0.105, green: 0.118, blue: 0.135))
+                Text(verbatim: "Install once. Future releases arrive through Sparkle updates.")
+                    .font(.system(size: 22, weight: .regular))
+                    .foregroundStyle(Color(red: 0.330, green: 0.380, blue: 0.420))
+            }
+            .position(x: Layout.size.width / 2, y: 204)
+
+            InstallerLandingPad()
+                .frame(width: Layout.landingPadSize.width, height: Layout.landingPadSize.height)
                 .position(Layout.appPosition)
 
-            InstallerChevron()
+            InstallerLandingPad()
+                .frame(width: Layout.landingPadSize.width, height: Layout.landingPadSize.height)
+                .position(Layout.applicationsPosition)
+
+            InstallerArrow()
                 .stroke(
-                    Color(red: 0.16, green: 0.17, blue: 0.19),
-                    style: StrokeStyle(lineWidth: 12, lineCap: .round, lineJoin: .round)
+                    Color(red: 0.913, green: 0.365, blue: 0.208),
+                    style: StrokeStyle(lineWidth: 9, lineCap: .round, lineJoin: .round)
                 )
-                .frame(width: 54, height: 78)
-                .position(x: 460, y: 255)
+                .frame(width: 172, height: 48)
+                .position(x: 680, y: 490)
 
             if showsMockIcons {
                 InstallerIconPair(
@@ -44,8 +56,25 @@ struct InstallerBackgroundView: View {
                     iconSize: Layout.iconSize
                 )
             }
+
+            Text(verbatim: "Open the disk image, then drag the app icon onto the Applications folder.")
+                .font(.system(size: 18, weight: .regular))
+                .foregroundStyle(Color(red: 0.370, green: 0.430, blue: 0.460))
+                .position(x: Layout.size.width / 2, y: 708)
         }
         .frame(width: Layout.size.width, height: Layout.size.height)
+    }
+}
+
+private struct InstallerLandingPad: View {
+    var body: some View {
+        RoundedRectangle(cornerRadius: 30, style: .continuous)
+            .fill(.white.opacity(0.82))
+            .overlay {
+                RoundedRectangle(cornerRadius: 30, style: .continuous)
+                    .strokeBorder(Color(red: 0.760, green: 0.825, blue: 0.840).opacity(0.70), lineWidth: 2)
+            }
+            .shadow(color: .black.opacity(0.10), radius: 24, x: 0, y: 10)
     }
 }
 
@@ -131,12 +160,14 @@ private struct ApplicationsFolderIcon: View {
     }
 }
 
-private struct InstallerChevron: Shape {
+private struct InstallerArrow: Shape {
     func path(in rect: CGRect) -> Path {
         var path = Path()
-        path.move(to: CGPoint(x: rect.minX + rect.width * 0.28, y: rect.minY + rect.height * 0.18))
-        path.addLine(to: CGPoint(x: rect.minX + rect.width * 0.72, y: rect.midY))
-        path.addLine(to: CGPoint(x: rect.minX + rect.width * 0.28, y: rect.minY + rect.height * 0.82))
+        path.move(to: CGPoint(x: rect.minX, y: rect.midY))
+        path.addLine(to: CGPoint(x: rect.maxX, y: rect.midY))
+        path.move(to: CGPoint(x: rect.maxX - 32, y: rect.midY - 24))
+        path.addLine(to: CGPoint(x: rect.maxX, y: rect.midY))
+        path.addLine(to: CGPoint(x: rect.maxX - 32, y: rect.midY + 24))
         return path
     }
 }
