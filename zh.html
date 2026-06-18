@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TokenAtlas — 面向 AI 编码的本地用量地图</title>
+  <meta name="description" content="TokenAtlas 是一款原生 macOS 菜单栏 App,读取 Claude Code、Codex 等 AI 编码 CLI 已写入磁盘的痕迹,绘制令牌、成本、会话与 Git 活动的用量地图。无需 API key、无需账号、无遥测。">
+  <link rel="canonical" href="https://can4hou6joeng4.github.io/TokenAtlas/zh.html">
+  <link rel="alternate" hreflang="en" href="https://can4hou6joeng4.github.io/TokenAtlas/">
+  <link rel="alternate" hreflang="zh" href="https://can4hou6joeng4.github.io/TokenAtlas/zh.html">
+  <link rel="alternate" hreflang="x-default" href="https://can4hou6joeng4.github.io/TokenAtlas/">
+  <link rel="icon" type="image/png" href="assets/icon.png">
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="TokenAtlas — 面向 AI 编码的本地用量地图">
+  <meta property="og:description" content="一款原生 macOS 菜单栏 App,绘制你的本地 AI 编码用量:令牌、成本、会话与 Git 活动。本地优先,无遥测。">
+  <meta property="og:url" content="https://can4hou6joeng4.github.io/TokenAtlas/zh.html">
+  <meta property="og:image" content="https://can4hou6joeng4.github.io/TokenAtlas/assets/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --dark:#0d0e11; --dark-2:#14161b; --paper:#faf9f5; --cream:#f2efe6;
+      --ink:#1a1916; --ink-soft:#5f5a51; --paper-line:#e6e2d7;
+      --on-dark:#f4f1ea; --on-dark-soft:rgba(244,241,234,0.60); --on-dark-faint:rgba(244,241,234,0.32);
+      --line-dark:rgba(244,241,234,0.12); --accent:#f06b1f; --accent-2:#e8421f; --gold:#eda81f;
+      --sora:'Sora',"PingFang SC","Hiragino Sans GB","Noto Sans SC",-apple-system,sans-serif;
+      --ui:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Noto Sans SC","Segoe UI",sans-serif;
+      --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,monospace;
+    }
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body { margin:0; background:var(--paper); color:var(--ink); font-family:var(--ui); font-size:16px; line-height:1.75; -webkit-font-smoothing:antialiased; }
+    a { color:var(--accent-2); text-decoration:none; }
+    a:hover { color:var(--accent); }
+    img { max-width:100%; display:block; }
+    .wrap { max-width:1080px; margin:0 auto; padding:0 28px; }
+
+    .tag { font-family:var(--mono); font-size:13px; letter-spacing:0.16em; text-transform:uppercase; display:inline-flex; align-items:center; gap:10px; }
+    .tag .br { opacity:0.4; }
+
+    .hero { background:radial-gradient(120% 90% at 50% 0%, #16181d 0%, var(--dark) 60%); color:var(--on-dark); border-bottom:1px solid var(--line-dark); position:relative; overflow:hidden; }
+    .hero::before { content:""; position:absolute; inset:0; background-image:repeating-linear-gradient(0deg, rgba(244,241,234,0.022) 0 1px, transparent 1px 4px); pointer-events:none; }
+    .hero-inner { position:relative; padding:30px 28px 64px; max-width:1080px; margin:0 auto; }
+    .topbar { display:flex; justify-content:space-between; align-items:center; padding:8px 0 60px; }
+    .brand { display:flex; align-items:center; gap:12px; }
+    .brand img { width:30px; height:30px; border-radius:8px; }
+    .brand b { font-family:var(--sora); font-weight:700; font-size:18px; letter-spacing:-0.01em; }
+    .topbar nav { display:flex; gap:24px; font-family:var(--mono); font-size:13px; letter-spacing:0.02em; }
+    .topbar nav a { color:var(--on-dark-soft); }
+    .topbar nav a:hover { color:var(--on-dark); }
+    .hero .eyebrow { color:var(--accent); margin-bottom:26px; }
+    .hero .eyebrow a { color:var(--on-dark-soft); }
+    .hero .eyebrow a:hover { color:var(--on-dark); }
+    .hero h1 { font-family:var(--sora); font-weight:800; font-size:92px; line-height:1.0; letter-spacing:-0.035em; margin:0 0 24px; }
+    .hero h1 .acc { color:var(--accent); }
+    .hero .tagline { font-family:var(--sora); font-weight:400; font-size:23px; line-height:1.7; color:var(--on-dark-soft); max-width:740px; margin:0 0 40px; }
+    .hero .tagline b { color:var(--on-dark); font-weight:600; }
+    .cta { display:flex; gap:14px; flex-wrap:wrap; align-items:center; }
+    .btn { font-family:var(--sora); font-weight:600; font-size:16px; display:inline-flex; align-items:center; gap:9px; padding:15px 28px; border-radius:12px; border:1px solid transparent; transition:transform .12s ease, background .12s ease; }
+    .btn:hover { transform:translateY(-1px); }
+    .btn-primary { background:var(--accent); color:#170a02; box-shadow:0 14px 38px rgba(240,107,31,0.34); }
+    .btn-primary:hover { background:#ff7d33; color:#170a02; }
+    .btn-ghost { color:var(--on-dark); border-color:var(--line-dark); background:rgba(244,241,234,0.03); }
+    .btn-ghost:hover { border-color:var(--on-dark-faint); }
+    .cta .note { font-family:var(--mono); font-size:12.5px; color:var(--on-dark-faint); letter-spacing:0.04em; }
+    .hero-shot { margin-top:56px; border-radius:16px; overflow:hidden; border:1px solid var(--line-dark); box-shadow:0 40px 90px rgba(0,0,0,0.55); background:#000; }
+
+    section { padding:88px 0; border-bottom:1px solid var(--paper-line); }
+    .section-head { max-width:720px; margin-bottom:44px; }
+    .section-num { color:var(--accent-2); margin-bottom:16px; }
+    .section-title { font-family:var(--sora); font-weight:700; font-size:38px; line-height:1.25; letter-spacing:-0.01em; margin:0 0 14px; }
+    .section-lede { font-size:18px; color:var(--ink-soft); margin:0; max-width:640px; }
+
+    .gallery { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+    figure.shot { margin:0; border-radius:14px; overflow:hidden; border:1px solid var(--paper-line); background:#fff; box-shadow:0 18px 44px rgba(26,25,22,0.10); }
+    figure.shot img { width:100%; height:100%; object-fit:cover; object-position:top left; aspect-ratio:16/10; }
+    figure.shot figcaption { font-family:var(--mono); font-size:12px; letter-spacing:0.08em; color:var(--ink-soft); padding:14px 18px; border-top:1px solid var(--paper-line); background:var(--cream); }
+
+    .features { list-style:none; margin:0; padding:0; border-top:1px solid var(--paper-line); }
+    .features li { display:grid; grid-template-columns:300px 1fr; gap:30px; padding:28px 0; border-bottom:1px solid var(--paper-line); }
+    .features .name { font-family:var(--sora); font-weight:600; font-size:20px; margin:0; }
+    .features .name small { display:block; font-family:var(--ui); font-weight:400; font-size:14px; color:var(--accent-2); margin-top:6px; }
+    .features .what { margin:0; color:var(--ink-soft); font-size:16px; align-self:center; }
+
+    .principles { list-style:none; margin:0; padding:0; display:grid; grid-template-columns:repeat(3,1fr); gap:22px; }
+    .principles li { background:var(--cream); border:1px solid var(--paper-line); border-radius:14px; padding:26px; }
+    .principles .n { font-family:var(--mono); font-size:13px; color:var(--accent-2); letter-spacing:0.1em; }
+    .principles h3 { font-family:var(--sora); font-weight:600; font-size:19px; margin:12px 0 8px; }
+    .principles p { margin:0; color:var(--ink-soft); font-size:15px; }
+
+    .download { background:var(--dark); color:var(--on-dark); border-bottom:none; }
+    .download .section-num { color:var(--accent); }
+    .download .section-title { color:var(--on-dark); }
+    .download .section-lede { color:var(--on-dark-soft); }
+    .dl-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:18px; margin-top:8px; }
+    .dl-card { border:1px solid var(--line-dark); border-radius:14px; padding:24px; background:rgba(244,241,234,0.02); }
+    .dl-card .tag { color:var(--accent); margin-bottom:14px; }
+    .dl-card h3 { font-family:var(--sora); font-weight:600; font-size:18px; margin:0 0 8px; }
+    .dl-card p { margin:0 0 16px; color:var(--on-dark-soft); font-size:14.5px; }
+    .dl-card a.lk { font-family:var(--mono); font-size:13px; color:var(--on-dark); letter-spacing:0.04em; }
+    .dl-card a.lk:hover { color:var(--accent); }
+
+    footer { background:var(--dark); color:var(--on-dark-soft); padding:40px 0 56px; }
+    .foot { display:flex; justify-content:space-between; align-items:center; gap:20px; flex-wrap:wrap; }
+    .foot .links { display:flex; gap:24px; font-family:var(--mono); font-size:13px; letter-spacing:0.02em; }
+    .foot .links a { color:var(--on-dark-soft); }
+    .foot .links a:hover { color:var(--accent); }
+    .foot .copy { font-family:var(--mono); font-size:12.5px; color:var(--on-dark-faint); }
+
+    @media (max-width:760px) {
+      .hero h1 { font-size:58px; }
+      .hero .tagline { font-size:18px; }
+      .topbar nav { display:none; }
+      .gallery { grid-template-columns:1fr; }
+      .features li { grid-template-columns:1fr; gap:8px; }
+      .principles, .dl-grid { grid-template-columns:1fr; }
+      .section-title { font-size:28px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="hero">
+    <div class="hero-inner">
+      <div class="topbar">
+        <div class="brand"><img src="assets/icon.png" alt="TokenAtlas 图标"><b>TokenAtlas</b></div>
+        <nav>
+          <a href="#gallery">概览</a>
+          <a href="#features">功能</a>
+          <a href="#download">下载</a>
+          <a href="https://github.com/can4hou6joeng4/TokenAtlas">GitHub</a>
+          <a href="index.html">EN</a>
+        </nav>
+      </div>
+
+      <div class="tag eyebrow">
+        <span class="br">[</span>
+        <span>TOKENATLAS · <a href="https://github.com/can4hou6joeng4/TokenAtlas/releases">v1.0.0</a></span>
+        <span class="br">]</span>
+        <span>· 本地优先 · macOS 14+</span>
+      </div>
+
+      <h1>Token<span class="acc">Atlas</span></h1>
+      <p class="tagline">为你的本地 AI 编码用量绘制地图 —— <b>令牌、成本、会话与 Git 活动</b> —— 集于一个安静的原生 macOS 菜单栏 App。它直接读取 Claude Code 与 Codex 已写入磁盘的痕迹。无需 API key、无需账号、无遥测。</p>
+
+      <div class="cta">
+        <a class="btn btn-primary" href="https://github.com/can4hou6joeng4/TokenAtlas/releases/latest">下载 macOS 版</a>
+        <a class="btn btn-ghost" href="https://github.com/can4hou6joeng4/TokenAtlas">在 GitHub 查看</a>
+        <span class="note">Apple Silicon · 免费开源</span>
+      </div>
+
+      <div class="hero-shot">
+        <img src="assets/demo.gif" alt="TokenAtlas 演示 —— 仪表盘与用量" width="1024">
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section id="gallery" class="wrap">
+      <div class="section-head">
+        <p class="tag section-num">00 · 概览</p>
+        <h2 class="section-title">你的工作,直接从磁盘读取。</h2>
+        <p class="section-lede">默认安静,需要时密集 —— 一个原生工具,而非营销仪表盘。</p>
+      </div>
+      <div class="gallery">
+        <figure class="shot"><img src="assets/shot-dashboard.png" alt="仪表盘"><figcaption>仪表盘 · 逐日编码活动</figcaption></figure>
+        <figure class="shot"><img src="assets/shot-usage.png" alt="用量"><figcaption>用量 · 令牌、成本、缓存、模型构成</figcaption></figure>
+        <figure class="shot"><img src="assets/shot-sessions.png" alt="会话"><figcaption>会话 · 每段对话皆可查看</figcaption></figure>
+        <figure class="shot"><img src="assets/shot-git.png" alt="Git 活动"><figcaption>Git · 用量映射到你的提交</figcaption></figure>
+      </div>
+    </section>
+
+    <section id="features" class="wrap">
+      <div class="section-head">
+        <p class="tag section-num">01 · 功能</p>
+        <h2 class="section-title">关于编码日常的一切,尽在菜单栏。</h2>
+      </div>
+      <ol class="features">
+        <li>
+          <p class="name">菜单栏用量地图<small>始终一键可达</small></p>
+          <p class="what">令牌、预估成本、缓存活动、最近会话与提供方状态 —— 从菜单栏一览无余。</p>
+        </li>
+        <li>
+          <p class="name">多提供方设计<small>当前支持 Claude Code 与 Codex</small></p>
+          <p class="what">提供方特有的细节藏在干净的适配器协议之后,新的 CLI 无需改动共享代码即可接入。</p>
+        </li>
+        <li>
+          <p class="name">会话与项目<small>完全在本地</small></p>
+          <p class="what">查看对话、项目、消息、模型构成与个人记录 —— 不向任何托管服务发送数据。</p>
+        </li>
+        <li>
+          <p class="name">仓库活动<small>用量映射到提交</small></p>
+          <p class="what">将 AI 编码用量与本地 Git 历史、内置的各语言统计相关联。</p>
+        </li>
+        <li>
+          <p class="name">可选的灵动岛<small>一瞥即得的面板</small></p>
+          <p class="what">基于 Atoll 的面板,展示活动、统计、媒体、计时、剪贴板等 —— 想用时再开。</p>
+        </li>
+        <li>
+          <p class="name">打包式自动更新<small>Sparkle</small></p>
+          <p class="what">手动检查与静默后台更新,经签名的 Sparkle appcast 分发。</p>
+        </li>
+      </ol>
+    </section>
+
+    <section id="principles" class="wrap">
+      <div class="section-head">
+        <p class="tag section-num">02 · 原则</p>
+        <h2 class="section-title">几件绝不妥协的事。</h2>
+      </div>
+      <ol class="principles">
+        <li>
+          <span class="n">1</span>
+          <h3>本地优先</h3>
+          <p>统计读取自 <code>~/.claude</code>、<code>~/.codex</code> 等本地工具数据。你的数据从不离开你的 Mac。</p>
+        </li>
+        <li>
+          <span class="n">2</span>
+          <h3>默认安静</h3>
+          <p>克制的配色、稳定的表格、易读的数字 —— 一个原生 macOS 工具,而非喧哗的仪表盘。</p>
+        </li>
+        <li>
+          <span class="n">3</span>
+          <h3>多提供方</h3>
+          <p>一张地图,容纳每个 CLI。新增提供方 = 一个文件夹、一次协议实现、一行注册。</p>
+        </li>
+      </ol>
+    </section>
+
+    <section id="download" class="download">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="tag section-num">03 · 下载</p>
+          <h2 class="section-title">获取 TokenAtlas。</h2>
+          <p class="section-lede">Apple Silicon Mac,macOS 14 或更高版本。基于 AGPL-3.0 免费开源。</p>
+        </div>
+        <div class="dl-grid">
+          <div class="dl-card">
+            <div class="tag"><span class="br">[</span> RELEASES <span class="br">]</span></div>
+            <h3>下载构建</h3>
+            <p>从 GitHub Releases 获取最新的 DMG 或 zip,把 App 拖进「应用程序」即可。</p>
+            <a class="lk" href="https://github.com/can4hou6joeng4/TokenAtlas/releases/latest">→ 最新发布</a>
+          </div>
+          <div class="dl-card">
+            <div class="tag"><span class="br">[</span> UPDATES <span class="br">]</span></div>
+            <h3>Sparkle 订阅</h3>
+            <p>App 会自动检查本站的 appcast 更新,也可在「设置 ▸ 关于」中手动检查。</p>
+            <a class="lk" href="appcast.xml">→ appcast.xml</a>
+          </div>
+          <div class="dl-card">
+            <div class="tag"><span class="br">[</span> NOTES <span class="br">]</span></div>
+            <h3>Gatekeeper</h3>
+            <p>未签名的预览版首次启动可能需右键 ▸ 打开。从源码构建也只需一条命令。</p>
+            <a class="lk" href="https://github.com/can4hou6joeng4/TokenAtlas#quick-start">→ 从源码构建</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap foot">
+      <div class="brand"><img src="assets/icon.png" alt="" style="width:24px;height:24px;border-radius:6px"><b style="font-family:var(--sora);color:var(--on-dark);font-size:15px">TokenAtlas</b></div>
+      <div class="links">
+        <a href="https://github.com/can4hou6joeng4/TokenAtlas">GitHub</a>
+        <a href="https://github.com/can4hou6joeng4/TokenAtlas/releases">发布</a>
+        <a href="https://github.com/can4hou6joeng4/TokenAtlas/discussions">讨论</a>
+        <a href="index.html">English</a>
+      </div>
+      <div class="copy">AGPL-3.0 · 本地优先 · 无遥测</div>
+    </div>
+  </footer>
+
+</body>
+</html>
