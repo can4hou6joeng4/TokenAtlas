@@ -10,6 +10,7 @@
   <a href="https://github.com/can4hou6joeng4/TokenAtlas/actions/workflows/release.yml?query=branch%3Amain"><img src="https://img.shields.io/github/actions/workflow/status/can4hou6joeng4/TokenAtlas/release.yml?branch=main&style=flat-square" alt="Build"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL_v3-blue.svg?style=flat-square" alt="License"></a>
   <a href="https://github.com/can4hou6joeng4/TokenAtlas/commits/main"><img src="https://img.shields.io/github/commit-activity/m/can4hou6joeng4/TokenAtlas?style=flat-square" alt="Commits"></a>
+  <a href="https://can4hou6joeng4.github.io/TokenAtlas/"><img src="https://img.shields.io/badge/homepage-tokenatlas-f06b1f?style=flat-square&logo=safari&logoColor=white" alt="Homepage"></a>
   <img src="https://img.shields.io/badge/macOS-14%2B-black?style=flat-square&logo=apple" alt="macOS 14+">
   <img src="https://img.shields.io/badge/Swift-6-orange?style=flat-square&logo=swift&logoColor=white" alt="Swift 6">
 </p>
