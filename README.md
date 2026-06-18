@@ -24,15 +24,9 @@
 
 <div align="center">
 
-<video src="https://github.com/can4hou6joeng4/TokenAtlas/raw/main/docs/assets/tokenatlas-promo.mp4" poster="docs/assets/promo-poster.png" width="900" controls muted playsinline></video>
+<img src="docs/assets/tokenatlas-promo.gif" alt="TokenAtlas demo — dashboard, usage, and providers at a glance" width="860">
 
-<p>
-  <a href="docs/assets/tokenatlas-promo.mp4">
-    <img src="docs/assets/promo-poster.png" alt="Watch the TokenAtlas tour — click to play" width="760">
-  </a>
-</p>
-
-<sub><b>▶ A 60-second tour.</b> GitHub plays the clip inline above; if your client strips it, click the poster to open <a href="docs/assets/tokenatlas-promo.mp4"><code>tokenatlas-promo.mp4</code></a>.</sub>
+<p><sub><b>▶ Watch the full 60-second tour</b> (1080p — adds the multi-provider, privacy &amp; CTA scenes): <a href="https://github.com/can4hou6joeng4/TokenAtlas/raw/main/docs/assets/tokenatlas-promo.mp4"><code>tokenatlas-promo.mp4</code></a></sub></p>
 
 </div>
 
