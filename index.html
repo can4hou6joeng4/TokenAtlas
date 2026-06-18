@@ -3,198 +3,393 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>TokenAtlas Updates</title>
-  <meta name="description" content="Download TokenAtlas and inspect the Sparkle update feed.">
+  <title>TokenAtlas — Local-first usage maps for AI coding</title>
+  <meta name="description" content="TokenAtlas is a native macOS menu-bar app that reads the traces your AI coding CLIs already write to disk — Claude Code, Codex and more — and maps tokens, cost, sessions and Git activity. No API keys, no account, no telemetry.">
+  <link rel="canonical" href="https://can4hou6joeng4.github.io/TokenAtlas/">
+  <link rel="icon" type="image/png" href="assets/icon.png">
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="TokenAtlas — Local-first usage maps for AI coding">
+  <meta property="og:description" content="A native macOS menu-bar app that maps your local AI coding usage: tokens, cost, sessions and Git activity. Local-first, no telemetry.">
+  <meta property="og:url" content="https://can4hou6joeng4.github.io/TokenAtlas/">
+  <meta property="og:image" content="https://can4hou6joeng4.github.io/TokenAtlas/assets/social-preview.png">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "TokenAtlas",
+    "applicationCategory": "DeveloperApplication",
+    "operatingSystem": "macOS 14+",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "description": "Local-first macOS menu-bar app that maps AI coding usage — tokens, cost, sessions and Git activity — from Claude Code and Codex traces on disk.",
+    "url": "https://can4hou6joeng4.github.io/TokenAtlas/",
+    "downloadUrl": "https://github.com/can4hou6joeng4/TokenAtlas/releases/latest",
+    "license": "https://github.com/can4hou6joeng4/TokenAtlas/blob/main/LICENSE"
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
   <style>
     :root {
-      color-scheme: light dark;
-      --bg: #f6f4ef;
-      --panel: #ffffff;
-      --text: #242424;
-      --muted: #6f6b65;
-      --line: #dfdbd3;
-      --accent: #e85d2a;
-      --accent-dark: #b8421f;
+      --dark:        #0d0e11;
+      --dark-2:      #14161b;
+      --paper:       #faf9f5;
+      --cream:       #f2efe6;
+      --ink:         #1a1916;
+      --ink-soft:    #5f5a51;
+      --paper-line:  #e6e2d7;
+      --on-dark:     #f4f1ea;
+      --on-dark-soft:rgba(244,241,234,0.60);
+      --on-dark-faint:rgba(244,241,234,0.32);
+      --line-dark:   rgba(244,241,234,0.12);
+      --accent:      #f06b1f;
+      --accent-2:    #e8421f;
+      --gold:        #eda81f;
+
+      --sora: 'Sora', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+      --ui:   -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+      --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
     }
 
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg: #151515;
-        --panel: #202020;
-        --text: #f2eee7;
-        --muted: #b8b0a5;
-        --line: #39342f;
-        --accent: #ff7a3d;
-        --accent-dark: #ff9a66;
-      }
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
     body {
       margin: 0;
-      background: var(--bg);
-      color: var(--text);
-      font: 16px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--ui);
+      font-size: 16px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
     }
+    a { color: var(--accent-2); text-decoration: none; }
+    a:hover { color: var(--accent); }
+    img { max-width: 100%; display: block; }
 
-    main {
-      width: min(960px, calc(100% - 32px));
-      margin: 0 auto;
-      padding: 56px 0;
-    }
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 0 28px; }
 
-    header {
-      display: grid;
-      grid-template-columns: 88px 1fr;
-      gap: 24px;
-      align-items: center;
-      padding-bottom: 36px;
-      border-bottom: 1px solid var(--line);
-    }
-
-    img {
-      width: 88px;
-      height: 88px;
-      border-radius: 22px;
-      box-shadow: 0 16px 40px rgb(0 0 0 / 14%);
-    }
-
-    h1 {
-      margin: 0 0 6px;
-      font-size: clamp(32px, 6vw, 56px);
-      line-height: 1;
-      letter-spacing: 0;
-    }
-
-    p {
-      margin: 0;
-      color: var(--muted);
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
-      margin-top: 28px;
-    }
-
-    .card {
-      min-height: 168px;
-      padding: 22px;
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: 8px;
-    }
-
-    .label {
-      display: block;
-      margin-bottom: 10px;
-      color: var(--muted);
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: 0.08em;
+    /* mono micro-label with brackets — the app's instrument motif */
+    .tag {
+      font-family: var(--mono);
+      font-size: 13px;
+      letter-spacing: 0.18em;
       text-transform: uppercase;
-    }
-
-    h2 {
-      margin: 0 0 8px;
-      font-size: 20px;
-      line-height: 1.25;
-      letter-spacing: 0;
-    }
-
-    a {
-      color: var(--accent-dark);
-      font-weight: 700;
-      text-decoration: none;
-    }
-
-    a:hover {
-      text-decoration: underline;
-    }
-
-    .actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      margin-top: 24px;
-    }
-
-    .button {
       display: inline-flex;
-      min-height: 44px;
       align-items: center;
-      padding: 0 18px;
-      border: 1px solid var(--accent);
-      border-radius: 8px;
-      background: var(--accent);
-      color: #fff;
+      gap: 10px;
+    }
+    .tag .br { opacity: 0.4; }
+
+    /* ───────────── HERO (dark instrument) ───────────── */
+    .hero {
+      background:
+        radial-gradient(120% 90% at 50% 0%, #16181d 0%, var(--dark) 60%);
+      color: var(--on-dark);
+      border-bottom: 1px solid var(--line-dark);
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: "";
+      position: absolute; inset: 0;
+      background-image: repeating-linear-gradient(0deg, rgba(244,241,234,0.022) 0 1px, transparent 1px 4px);
+      pointer-events: none;
+    }
+    .hero-inner { position: relative; padding: 30px 28px 64px; max-width: 1080px; margin: 0 auto; }
+
+    .topbar {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 8px 0 60px;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .brand img { width: 30px; height: 30px; border-radius: 8px; }
+    .brand b { font-family: var(--sora); font-weight: 700; font-size: 18px; letter-spacing: -0.01em; }
+    .topbar nav { display: flex; gap: 26px; font-family: var(--mono); font-size: 13px; letter-spacing: 0.04em; }
+    .topbar nav a { color: var(--on-dark-soft); }
+    .topbar nav a:hover { color: var(--on-dark); }
+
+    .hero .eyebrow { color: var(--accent); margin-bottom: 26px; }
+    .hero .eyebrow a { color: var(--on-dark-soft); }
+    .hero .eyebrow a:hover { color: var(--on-dark); }
+
+    .hero h1 {
+      font-family: var(--sora);
       font-weight: 800;
+      font-size: 92px;
+      line-height: 0.98;
+      letter-spacing: -0.035em;
+      margin: 0 0 24px;
+    }
+    .hero h1 .acc { color: var(--accent); }
+    .hero .tagline {
+      font-family: var(--sora);
+      font-weight: 400;
+      font-size: 24px;
+      line-height: 1.45;
+      color: var(--on-dark-soft);
+      max-width: 720px;
+      margin: 0 0 40px;
+    }
+    .hero .tagline b { color: var(--on-dark); font-weight: 600; }
+
+    .cta { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; }
+    .btn {
+      font-family: var(--sora);
+      font-weight: 600;
+      font-size: 16px;
+      display: inline-flex; align-items: center; gap: 9px;
+      padding: 15px 28px; border-radius: 12px;
+      border: 1px solid transparent;
+      transition: transform .12s ease, background .12s ease;
+    }
+    .btn:hover { transform: translateY(-1px); }
+    .btn-primary { background: var(--accent); color: #170a02; box-shadow: 0 14px 38px rgba(240,107,31,0.34); }
+    .btn-primary:hover { background: #ff7d33; color: #170a02; }
+    .btn-ghost { color: var(--on-dark); border-color: var(--line-dark); background: rgba(244,241,234,0.03); }
+    .btn-ghost:hover { color: var(--on-dark); border-color: var(--on-dark-faint); }
+    .cta .note { font-family: var(--mono); font-size: 12.5px; color: var(--on-dark-faint); letter-spacing: 0.04em; }
+
+    .hero-shot {
+      margin-top: 56px;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid var(--line-dark);
+      box-shadow: 0 40px 90px rgba(0,0,0,0.55);
+      background: #000;
     }
 
-    .button.secondary {
-      background: transparent;
-      color: var(--accent-dark);
+    /* ───────────── SECTIONS (paper editorial) ───────────── */
+    section { padding: 88px 0; border-bottom: 1px solid var(--paper-line); }
+    .section-head { max-width: 720px; margin-bottom: 44px; }
+    .section-num { color: var(--accent-2); margin-bottom: 16px; }
+    .section-title {
+      font-family: var(--sora);
+      font-weight: 700;
+      font-size: 38px;
+      line-height: 1.12;
+      letter-spacing: -0.02em;
+      margin: 0 0 14px;
+    }
+    .section-lede { font-size: 18px; color: var(--ink-soft); margin: 0; max-width: 640px; }
+
+    /* gallery */
+    .gallery { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    figure.shot {
+      margin: 0; border-radius: 14px; overflow: hidden;
+      border: 1px solid var(--paper-line); background: #fff;
+      box-shadow: 0 18px 44px rgba(26,25,22,0.10);
+    }
+    figure.shot img { width: 100%; height: 100%; object-fit: cover; object-position: top left; aspect-ratio: 16/10; }
+    figure.shot figcaption {
+      font-family: var(--mono); font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--ink-soft); padding: 14px 18px; border-top: 1px solid var(--paper-line); background: var(--cream);
     }
 
-    footer {
-      margin-top: 36px;
-      padding-top: 20px;
-      border-top: 1px solid var(--line);
-      color: var(--muted);
-      font-size: 14px;
+    /* features */
+    .features { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--paper-line); }
+    .features li {
+      display: grid; grid-template-columns: 280px 1fr; gap: 30px;
+      padding: 28px 0; border-bottom: 1px solid var(--paper-line);
     }
+    .features .name { font-family: var(--sora); font-weight: 600; font-size: 20px; margin: 0; }
+    .features .name small { display: block; font-family: var(--ui); font-weight: 400; font-size: 14px; color: var(--accent-2); margin-top: 5px; letter-spacing: 0; }
+    .features .what { margin: 0; color: var(--ink-soft); font-size: 16px; align-self: center; }
 
-    @media (max-width: 720px) {
-      header {
-        grid-template-columns: 1fr;
-      }
+    /* principles */
+    .principles { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+    .principles li { background: var(--cream); border: 1px solid var(--paper-line); border-radius: 14px; padding: 26px; }
+    .principles .n { font-family: var(--mono); font-size: 13px; color: var(--accent-2); letter-spacing: 0.1em; }
+    .principles h3 { font-family: var(--sora); font-weight: 600; font-size: 19px; margin: 12px 0 8px; }
+    .principles p { margin: 0; color: var(--ink-soft); font-size: 15px; }
 
-      .grid {
-        grid-template-columns: 1fr;
-      }
+    /* download (dark) */
+    .download { background: var(--dark); color: var(--on-dark); border-bottom: none; }
+    .download .section-num { color: var(--accent); }
+    .download .section-title { color: var(--on-dark); }
+    .download .section-lede { color: var(--on-dark-soft); }
+    .dl-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 8px; }
+    .dl-card { border: 1px solid var(--line-dark); border-radius: 14px; padding: 24px; background: rgba(244,241,234,0.02); }
+    .dl-card .tag { color: var(--accent); margin-bottom: 14px; }
+    .dl-card h3 { font-family: var(--sora); font-weight: 600; font-size: 18px; margin: 0 0 8px; }
+    .dl-card p { margin: 0 0 16px; color: var(--on-dark-soft); font-size: 14.5px; }
+    .dl-card a.lk { font-family: var(--mono); font-size: 13px; color: var(--on-dark); letter-spacing: 0.04em; }
+    .dl-card a.lk:hover { color: var(--accent); }
+
+    /* footer */
+    footer { background: var(--dark); color: var(--on-dark-soft); padding: 40px 0 56px; }
+    .foot { display: flex; justify-content: space-between; align-items: center; gap: 20px; flex-wrap: wrap; }
+    .foot .links { display: flex; gap: 24px; font-family: var(--mono); font-size: 13px; letter-spacing: 0.04em; }
+    .foot .links a { color: var(--on-dark-soft); }
+    .foot .links a:hover { color: var(--accent); }
+    .foot .copy { font-family: var(--mono); font-size: 12.5px; color: var(--on-dark-faint); }
+
+    @media (max-width: 760px) {
+      .hero h1 { font-size: 58px; }
+      .hero .tagline { font-size: 19px; }
+      .topbar nav { display: none; }
+      .gallery { grid-template-columns: 1fr; }
+      .features li { grid-template-columns: 1fr; gap: 8px; }
+      .principles, .dl-grid { grid-template-columns: 1fr; }
+      .section-title { font-size: 30px; }
     }
   </style>
 </head>
 <body>
-  <main>
-    <header>
-      <img src="https://raw.githubusercontent.com/can4hou6joeng4/TokenAtlas/main/docs/assets/token-atlas-icon.png" alt="TokenAtlas app icon">
-      <div>
-        <h1>TokenAtlas</h1>
-        <p>A local-first macOS app for mapping AI coding usage, sessions, costs, and repository activity.</p>
-        <div class="actions">
-          <a class="button" href="https://github.com/can4hou6joeng4/TokenAtlas/releases">Download Releases</a>
-          <a class="button secondary" href="appcast.xml">Sparkle Appcast</a>
-          <a class="button secondary" href="https://github.com/can4hou6joeng4/TokenAtlas">Source</a>
-        </div>
-      </div>
-    </header>
 
-    <section class="grid" aria-label="Release channels">
-      <article class="card">
-        <span class="label">Downloads</span>
-        <h2>GitHub Releases</h2>
-        <p>Packaged builds are published from signed tags in the main repository.</p>
-      </article>
-      <article class="card">
-        <span class="label">Updates</span>
-        <h2>Sparkle Feed</h2>
-        <p>The appcast at this site is used by TokenAtlas for automatic update checks.</p>
-      </article>
-      <article class="card">
-        <span class="label">Install Notes</span>
-        <h2>macOS Gatekeeper</h2>
-        <p>Unsigned preview builds may require right-clicking the app and choosing Open.</p>
-      </article>
+  <header class="hero">
+    <div class="hero-inner">
+      <div class="topbar">
+        <div class="brand"><img src="assets/icon.png" alt="TokenAtlas icon"><b>TokenAtlas</b></div>
+        <nav>
+          <a href="#gallery">Gallery</a>
+          <a href="#features">Features</a>
+          <a href="#download">Download</a>
+          <a href="https://github.com/can4hou6joeng4/TokenAtlas">GitHub</a>
+        </nav>
+      </div>
+
+      <div class="tag eyebrow">
+        <span class="br">[</span>
+        <span>TOKENATLAS · <a href="https://github.com/can4hou6joeng4/TokenAtlas/releases">v1.0.0</a></span>
+        <span class="br">]</span>
+        <span>· LOCAL-FIRST · macOS 14+</span>
+      </div>
+
+      <h1>Token<span class="acc">Atlas</span></h1>
+      <p class="tagline">Map your local AI coding usage — <b>tokens, cost, sessions, and Git activity</b> — in one quiet, native macOS menu-bar app. It reads the traces Claude Code &amp; Codex already write to disk. No API keys, no account, no telemetry.</p>
+
+      <div class="cta">
+        <a class="btn btn-primary" href="https://github.com/can4hou6joeng4/TokenAtlas/releases/latest">Download for macOS</a>
+        <a class="btn btn-ghost" href="https://github.com/can4hou6joeng4/TokenAtlas">View on GitHub</a>
+        <span class="note">Apple Silicon · free &amp; open source</span>
+      </div>
+
+      <div class="hero-shot">
+        <img src="assets/demo.gif" alt="TokenAtlas demo — dashboard and usage" width="1024">
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section id="gallery" class="wrap">
+      <div class="section-head">
+        <p class="tag section-num">00 · GALLERY</p>
+        <h2 class="section-title">Your work, read straight off disk.</h2>
+        <p class="section-lede">Quiet by default, dense when needed — a native utility, not a marketing dashboard.</p>
+      </div>
+      <div class="gallery">
+        <figure class="shot"><img src="assets/shot-dashboard.png" alt="Dashboard"><figcaption>Dashboard · activity day by day</figcaption></figure>
+        <figure class="shot"><img src="assets/shot-usage.png" alt="Usage"><figcaption>Usage · tokens, cost, cache, model mix</figcaption></figure>
+        <figure class="shot"><img src="assets/shot-sessions.png" alt="Sessions"><figcaption>Sessions · every conversation, inspectable</figcaption></figure>
+        <figure class="shot"><img src="assets/shot-git.png" alt="Git activity"><figcaption>Git · usage mapped to your commits</figcaption></figure>
+      </div>
     </section>
 
-    <footer>
-      This page is deployed from the TokenAtlas repository. Release automation updates <code>appcast.xml</code> when Sparkle signing is configured.
-    </footer>
+    <section id="features" class="wrap">
+      <div class="section-head">
+        <p class="tag section-num">01 · FEATURES</p>
+        <h2 class="section-title">Everything about your coding day, in the menu bar.</h2>
+      </div>
+      <ol class="features">
+        <li>
+          <p class="name">Menu-bar usage map<small>always one click away</small></p>
+          <p class="what">Tokens, estimated cost, cache activity, recent sessions, and provider status — at a glance from the menu bar.</p>
+        </li>
+        <li>
+          <p class="name">Multi-provider by design<small>Claude Code &amp; Codex today</small></p>
+          <p class="what">Provider-specific quirks live behind a clean adapter protocol, so new CLIs slot in without touching shared code.</p>
+        </li>
+        <li>
+          <p class="name">Sessions &amp; projects<small>entirely on-device</small></p>
+          <p class="what">Inspect conversations, projects, messages, model mix, and personal records — nothing is sent to a hosted service.</p>
+        </li>
+        <li>
+          <p class="name">Repository activity<small>usage, mapped to commits</small></p>
+          <p class="what">Correlate AI coding usage with local Git history and bundled per-language statistics across your repos.</p>
+        </li>
+        <li>
+          <p class="name">Optional Notch Island<small>glanceable panels</small></p>
+          <p class="what">Atoll-backed panels for activity, stats, media, timers, clipboard, and more — when you want them.</p>
+        </li>
+        <li>
+          <p class="name">Packaged auto-updates<small>Sparkle</small></p>
+          <p class="what">Manual checks and silent background updates, delivered through a signed Sparkle appcast.</p>
+        </li>
+      </ol>
+    </section>
+
+    <section id="principles" class="wrap">
+      <div class="section-head">
+        <p class="tag section-num">02 · PRINCIPLES</p>
+        <h2 class="section-title">A few things it refuses to compromise on.</h2>
+      </div>
+      <ol class="principles">
+        <li>
+          <span class="n">1</span>
+          <h3>Local-first</h3>
+          <p>Stats are read from local tool data like <code>~/.claude</code> and <code>~/.codex</code>. Your data never leaves your Mac.</p>
+        </li>
+        <li>
+          <span class="n">2</span>
+          <h3>Quiet by default</h3>
+          <p>Restrained color, stable tables, readable numbers — a native macOS utility, not a dashboard that shouts.</p>
+        </li>
+        <li>
+          <span class="n">3</span>
+          <h3>Multi-provider</h3>
+          <p>One map for every CLI. Adding a provider is a folder, a protocol conformance, and one registry line.</p>
+        </li>
+      </ol>
+    </section>
+
+    <section id="download" class="download">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="tag section-num">03 · DOWNLOAD</p>
+          <h2 class="section-title">Get TokenAtlas.</h2>
+          <p class="section-lede">Apple Silicon Mac, macOS 14 or later. Free and open source under AGPL-3.0.</p>
+        </div>
+        <div class="dl-grid">
+          <div class="dl-card">
+            <div class="tag"><span class="br">[</span> RELEASES <span class="br">]</span></div>
+            <h3>Download a build</h3>
+            <p>Grab the latest packaged DMG or zip from GitHub Releases, then drag the app to Applications.</p>
+            <a class="lk" href="https://github.com/can4hou6joeng4/TokenAtlas/releases/latest">→ Latest release</a>
+          </div>
+          <div class="dl-card">
+            <div class="tag"><span class="br">[</span> UPDATES <span class="br">]</span></div>
+            <h3>Sparkle feed</h3>
+            <p>The app checks this site's appcast for updates automatically; you can also check manually from Settings ▸ About.</p>
+            <a class="lk" href="appcast.xml">→ appcast.xml</a>
+          </div>
+          <div class="dl-card">
+            <div class="tag"><span class="br">[</span> NOTES <span class="br">]</span></div>
+            <h3>Gatekeeper</h3>
+            <p>Unsigned preview builds may need a right-click ▸ Open on first launch. Build from source is also one command.</p>
+            <a class="lk" href="https://github.com/can4hou6joeng4/TokenAtlas#quick-start">→ Build from source</a>
+          </div>
+        </div>
+      </div>
+    </section>
   </main>
+
+  <footer>
+    <div class="wrap foot">
+      <div class="brand"><img src="assets/icon.png" alt="" style="width:24px;height:24px;border-radius:6px"><b style="font-family:var(--sora);color:var(--on-dark);font-size:15px">TokenAtlas</b></div>
+      <div class="links">
+        <a href="https://github.com/can4hou6joeng4/TokenAtlas">GitHub</a>
+        <a href="https://github.com/can4hou6joeng4/TokenAtlas/releases">Releases</a>
+        <a href="https://github.com/can4hou6joeng4/TokenAtlas/discussions">Discussions</a>
+        <a href="https://github.com/can4hou6joeng4/TokenAtlas/blob/main/LICENSE">License</a>
+      </div>
+      <div class="copy">AGPL-3.0 · local-first · no telemetry</div>
+    </div>
+  </footer>
+
 </body>
 </html>
