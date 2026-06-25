@@ -36,7 +36,7 @@ jobs:
       image: ghcr.io/realm/swiftlint:0.63.3
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           # SwiftLint excludes ThirdParty/ (the only submodule) anyway, so we
           # skip the expensive recursive submodule fetch that release.yml needs.
